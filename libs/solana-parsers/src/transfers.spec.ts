@@ -108,6 +108,77 @@ describe('parseTransfers', () => {
     });
   });
 
+  it('leaves amountUi numerically equal to amountRaw when decimals is unknown (plain SPL transfer)', () => {
+    // Documents the deliberate limitation described in transfers.ts: without a mint/decimals
+    // lookup, `amountUi` is NOT a real human-readable value here — it is `amountRaw` treated as
+    // if decimals were 0. This test locks that behavior in so it can't drift silently.
+    const instructions: JsonParsedInstruction[] = [
+      {
+        programId: TOKEN_PROGRAM_ID,
+        program: 'spl-token',
+        parsed: {
+          type: 'transfer',
+          info: {
+            source: SOURCE_PUBKEY,
+            destination: DEST_PUBKEY,
+            authority: AUTHORITY_PUBKEY,
+            amount: '2500000',
+          },
+        },
+      },
+    ];
+
+    const [event] = parseTransfers(makeTx(instructions));
+
+    expect(event).toBeDefined();
+    expect(event?.decimals).toBeNull();
+    expect(event?.amountUi).toBe(Number(event?.amountRaw));
+  });
+
+  it('maps a transferChecked instruction through the classic Token Program to a TransferEvent', () => {
+    const instructions: JsonParsedInstruction[] = [
+      {
+        programId: TOKEN_PROGRAM_ID,
+        program: 'spl-token',
+        parsed: {
+          type: 'transferChecked',
+          info: {
+            source: SOURCE_PUBKEY,
+            destination: DEST_PUBKEY,
+            authority: AUTHORITY_PUBKEY,
+            mint: MINT_PUBKEY,
+            tokenAmount: {
+              amount: '3000000',
+              decimals: 6,
+              uiAmount: 3,
+              uiAmountString: '3',
+            },
+          },
+        },
+      },
+    ];
+
+    const [event] = parseTransfers(makeTx(instructions));
+
+    expect(event).toEqual<TransferEvent>({
+      slot: SLOT,
+      blockTime: BLOCK_TIME,
+      txSignature: SIGNATURE,
+      txIndex: TX_INDEX,
+      instructionIndex: 0,
+      innerIndex: null,
+      programId: TOKEN_PROGRAM_ID,
+      transferType: 'spl_checked',
+      mint: MINT_PUBKEY,
+      decimals: 6,
+      source: SOURCE_PUBKEY,
+      destination: DEST_PUBKEY,
+      authority: AUTHORITY_PUBKEY,
+      amountRaw: '3000000',
+      amountUi: 3,
+    });
+  });
+
   it('maps a Token-2022 transferChecked instruction to a TransferEvent', () => {
     const instructions: JsonParsedInstruction[] = [
       {

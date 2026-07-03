@@ -10,7 +10,7 @@ import { z } from 'zod';
 export const envSchema = z.object({
   RPC_WS_URL: z.url(),
   RPC_HTTP_URL: z.url(),
-  RPC_COMMITMENT: z.string().default('confirmed'),
+  RPC_COMMITMENT: z.enum(['processed', 'confirmed', 'finalized']).default('confirmed'),
 
   KAFKA_BROKERS: z.string().default('localhost:9092'),
 

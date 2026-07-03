@@ -7,6 +7,9 @@ import {
 import { InstructionLocation, walkInstructions } from './instructionWalk';
 import { JsonParsedInstructionParsed, ParsedTransactionInput } from './types';
 
+/** Native SOL always has 9 decimals. */
+const SOL_DECIMALS: number = 9;
+
 type BaseTransferFields = Pick<
   TransferEvent,
   'slot' | 'blockTime' | 'txSignature' | 'txIndex' | 'instructionIndex' | 'innerIndex' | 'programId'
@@ -87,12 +90,12 @@ function buildSolTransfer (
     ...buildBaseEvent(tx, txSignature, location, programId),
     transferType: 'sol',
     mint: '', // native SOL transfers have no mint
-    decimals: 9, // native SOL always has 9 decimals
+    decimals: SOL_DECIMALS,
     source,
     destination,
     authority: source, // System transfer's signer/authority is always the source account
     amountRaw,
-    amountUi: toUiAmount(amountRaw, 9),
+    amountUi: toUiAmount(amountRaw, SOL_DECIMALS),
   };
 }
 
@@ -123,6 +126,12 @@ function buildSplTransfer (
     destination,
     authority,
     amountRaw,
+    // `decimals` is unknown here (see the `mint`/`decimals` comment above), so `toUiAmount` treats
+    // it as 0 — this makes `amountUi` numerically equal to `amountRaw` (NOT a real human-readable
+    // UI amount). This is a deliberate, documented limitation, not a bug: recovering the true
+    // decimals would require a separate mint-account lookup, which is out of scope here and is
+    // performed downstream by `token-enricher`. Callers must not treat this `amountUi` as the
+    // real UI value for plain SPL `transfer` events.
     amountUi: toUiAmount(amountRaw, null),
   };
 }

@@ -122,6 +122,20 @@ describe('diffLamports', () => {
 
     expect(diffLamports(meta, 1)).toBe(-600000000n);
   });
+
+  it('documents that an out-of-range index is treated the same as a missing preBalances/postBalances ' +
+    'field (missing side resolves to 0)', () => {
+    const meta: TransactionMeta = {
+      innerInstructions: null,
+      preBalances: [5000, 1000000000],
+      postBalances: [5000, 1000000000, 2000000000],
+    };
+
+    // Index 2 is out of range for preBalances (length 2) but in range for postBalances: the
+    // "missing" pre side is treated as 0, exactly like an entirely absent preBalances array would
+    // be. This is a deliberate compromise (see diffLamports's `?? 0`), locked in by this test.
+    expect(diffLamports(meta, 2)).toBe(2000000000n);
+  });
 });
 
 describe('findAccountIndex', () => {
@@ -160,6 +174,42 @@ describe('findAccountIndex', () => {
       loadedAddresses: { writable: [LOOKUP_WRITABLE_PUBKEY], readonly: [LOOKUP_READONLY_PUBKEY] },
     });
 
+    expect(findAccountIndex(tx, UNKNOWN_PUBKEY)).toBe(-1);
+  });
+
+  it('does not throw and still resolves via loadedAddresses when message.accountKeys is absent entirely', () => {
+    const tx: ParsedTransactionInput = {
+      slot: SLOT,
+      blockTime: BLOCK_TIME,
+      txIndex: TX_INDEX,
+      transaction: {
+        signatures: [SIGNATURE],
+        message: { instructions: [] }, // no accountKeys field at all
+      },
+      meta: {
+        innerInstructions: null,
+        loadedAddresses: { writable: [LOOKUP_WRITABLE_PUBKEY], readonly: [LOOKUP_READONLY_PUBKEY] },
+      },
+    };
+
+    expect(() => findAccountIndex(tx, LOOKUP_WRITABLE_PUBKEY)).not.toThrow();
+    // accountKeys treated as empty (length 0), so the writable lookup address lands at index 0.
+    expect(findAccountIndex(tx, LOOKUP_WRITABLE_PUBKEY)).toBe(0);
+  });
+
+  it('returns -1 (not found) when both message.accountKeys and meta.loadedAddresses are absent', () => {
+    const tx: ParsedTransactionInput = {
+      slot: SLOT,
+      blockTime: BLOCK_TIME,
+      txIndex: TX_INDEX,
+      transaction: {
+        signatures: [SIGNATURE],
+        message: { instructions: [] }, // no accountKeys field at all
+      },
+      meta: { innerInstructions: null }, // no loadedAddresses field at all
+    };
+
+    expect(() => findAccountIndex(tx, UNKNOWN_PUBKEY)).not.toThrow();
     expect(findAccountIndex(tx, UNKNOWN_PUBKEY)).toBe(-1);
   });
 });

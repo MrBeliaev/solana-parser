@@ -63,4 +63,22 @@ describe('config', () => {
 
     expect(result.success).toBe(false);
   });
+
+  it('rejects an invalid RPC_COMMITMENT value', () => {
+    process.env.RPC_COMMITMENT = 'invalid';
+
+    const result: ReturnType<typeof envSchema.safeParse> = envSchema.safeParse(process.env);
+
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts each documented RPC_COMMITMENT value', () => {
+    for (const commitment of ['processed', 'confirmed', 'finalized'] as const) {
+      process.env.RPC_COMMITMENT = commitment;
+
+      const config: Config = loadConfig();
+
+      expect(config.RPC_COMMITMENT).toBe(commitment);
+    }
+  });
 });
