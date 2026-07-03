@@ -24,17 +24,63 @@ export interface InnerInstructionSet {
   readonly instructions: JsonParsedInstruction[];
 }
 
+/** One entry of `message.accountKeys[]` under `encoding: "jsonParsed"`. */
+export interface AccountKeyEntry {
+  readonly pubkey: string;
+  readonly signer: boolean;
+  readonly writable: boolean;
+}
+
+/**
+ * Addresses pulled in via an Address Lookup Table for a v0 transaction. When present, the
+ * transaction's *full* account list (the one `preBalances`/`postBalances`/`preTokenBalances`/
+ * `postTokenBalances[].accountIndex` index into) is `message.accountKeys` followed by
+ * `loadedAddresses.writable` followed by `loadedAddresses.readonly`.
+ */
+export interface LoadedAddresses {
+  readonly writable: string[];
+  readonly readonly: string[];
+}
+
+/** One entry of `meta.preTokenBalances[]`/`meta.postTokenBalances[]`. */
+export interface TokenBalance {
+  readonly accountIndex: number;
+  readonly mint: string;
+  readonly owner?: string;
+  readonly uiTokenAmount: {
+    readonly amount: string;
+    readonly decimals: number;
+    readonly uiAmount: number | null;
+  };
+}
+
+/**
+ * The `meta` shape of a `blockSubscribe`/`getTransaction` result, narrowed to the fields this
+ * package reads. `preTokenBalances`/`postTokenBalances`/`preBalances`/`postBalances`/
+ * `loadedAddresses` are optional here (rather than always-present arrays, which is what a real
+ * RPC response has) purely so existing `meta: { innerInstructions }` fixtures from Task 3 keep
+ * type-checking without modification — `balanceDiff.ts`'s helpers treat "missing" the same as
+ * "empty".
+ */
+export interface TransactionMeta {
+  readonly innerInstructions: InnerInstructionSet[] | null;
+  readonly preTokenBalances?: TokenBalance[];
+  readonly postTokenBalances?: TokenBalance[];
+  readonly preBalances?: number[];
+  readonly postBalances?: number[];
+  readonly loadedAddresses?: LoadedAddresses;
+}
+
 /** The raw per-transaction shape nested under `block.transactions[]` in a `blockSubscribe` result. */
 export interface RawBlockTransaction {
   readonly transaction: {
     readonly signatures: string[];
     readonly message: {
       readonly instructions: JsonParsedInstruction[];
+      readonly accountKeys?: AccountKeyEntry[];
     };
   };
-  readonly meta: {
-    readonly innerInstructions: InnerInstructionSet[] | null;
-  } | null;
+  readonly meta: TransactionMeta | null;
 }
 
 /**
