@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "../../dist/libs/clickhouse-client/tsconfig.lib.tsbuildinfo",
+    "outDir": "../../dist/libs/clickhouse-client"
+  },
+  "include": ["src/**/*.ts"]
+}

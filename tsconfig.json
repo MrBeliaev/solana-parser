@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2022",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "ignoreDeprecations": "6.0",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@app/common": ["libs/common/src"],
+      "@app/common/*": ["libs/common/src/*"],
+      "@app/solana-parsers": ["libs/solana-parsers/src"],
+      "@app/solana-parsers/*": ["libs/solana-parsers/src/*"],
+      "@app/clickhouse-client": ["libs/clickhouse-client/src"],
+      "@app/clickhouse-client/*": ["libs/clickhouse-client/src/*"],
+      "@app/kafka-client": ["libs/kafka-client/src"],
+      "@app/kafka-client/*": ["libs/kafka-client/src/*"]
+    }
+  }
+}

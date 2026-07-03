@@ -1,0 +1,7 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "../../dist/apps/block-listener"
+  },
+  "include": ["src/**/*.ts"]
+}
