@@ -94,6 +94,23 @@ export interface ParsedTransactionInput extends RawBlockTransaction {
   readonly txIndex: number;
 }
 
+/**
+ * The raw (unparsed) shape of a `jsonParsed`-encoded instruction belonging to a program the RPC
+ * has no built-in `parsed`-instruction decoder for (e.g. any DEX program: Raydium, Orca, pump.fun).
+ * Even though the RPC can't decode `data` for these instructions, `encoding: "jsonParsed"` still
+ * resolves `programId` and every entry of `accounts` from account-index to base58 pubkey — only
+ * `data` remains as raw base58-encoded bytes, since the RPC has no IDL to interpret it with. This
+ * is therefore the real wire shape of a DEX-program instruction in a `jsonParsed` block, and is
+ * what the `swaps/*.ts` decoders (Tasks 5-9) read, rather than `JsonParsedInstruction` (which
+ * models the `parsed`-decoded shape used by `transfers.ts`/`newTokens.ts`).
+ */
+export interface RawInstruction {
+  readonly programId: string;
+  readonly accounts: string[];
+  readonly data: string;
+  readonly stackHeight?: number | null;
+}
+
 /** The raw shape of a `blockSubscribe` notification result. */
 export interface BlockNotification {
   readonly slot: number;
