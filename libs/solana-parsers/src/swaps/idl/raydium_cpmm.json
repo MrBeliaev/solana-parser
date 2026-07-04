@@ -1,0 +1,56 @@
+{
+  "address": "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C",
+  "metadata": {
+    "name": "raydium_cp_swap",
+    "version": "0.1.0",
+    "spec": "0.1.0"
+  },
+  "instructions": [
+    {
+      "name": "swapBaseInput",
+      "discriminator": [143, 190, 90, 218, 196, 30, 51, 222],
+      "accounts": [
+        { "name": "payer", "writable": true, "signer": true },
+        { "name": "authority", "writable": false, "signer": false },
+        { "name": "ammConfig", "writable": false, "signer": false },
+        { "name": "poolState", "writable": true, "signer": false },
+        { "name": "inputTokenAccount", "writable": true, "signer": false },
+        { "name": "outputTokenAccount", "writable": true, "signer": false },
+        { "name": "inputVault", "writable": true, "signer": false },
+        { "name": "outputVault", "writable": true, "signer": false },
+        { "name": "inputTokenProgram", "writable": false, "signer": false },
+        { "name": "outputTokenProgram", "writable": false, "signer": false },
+        { "name": "inputTokenMint", "writable": false, "signer": false },
+        { "name": "outputTokenMint", "writable": false, "signer": false },
+        { "name": "observationState", "writable": true, "signer": false }
+      ],
+      "args": [
+        { "name": "amountIn", "type": "u64" },
+        { "name": "minimumAmountOut", "type": "u64" }
+      ]
+    },
+    {
+      "name": "swapBaseOutput",
+      "discriminator": [55, 217, 98, 86, 163, 74, 180, 173],
+      "accounts": [
+        { "name": "payer", "writable": true, "signer": true },
+        { "name": "authority", "writable": false, "signer": false },
+        { "name": "ammConfig", "writable": false, "signer": false },
+        { "name": "poolState", "writable": true, "signer": false },
+        { "name": "inputTokenAccount", "writable": true, "signer": false },
+        { "name": "outputTokenAccount", "writable": true, "signer": false },
+        { "name": "inputVault", "writable": true, "signer": false },
+        { "name": "outputVault", "writable": true, "signer": false },
+        { "name": "inputTokenProgram", "writable": false, "signer": false },
+        { "name": "outputTokenProgram", "writable": false, "signer": false },
+        { "name": "inputTokenMint", "writable": false, "signer": false },
+        { "name": "outputTokenMint", "writable": false, "signer": false },
+        { "name": "observationState", "writable": true, "signer": false }
+      ],
+      "args": [
+        { "name": "amountOut", "type": "u64" },
+        { "name": "maxAmountIn", "type": "u64" }
+      ]
+    }
+  ]
+}

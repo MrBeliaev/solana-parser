@@ -10,6 +10,12 @@ module.exports = {
     '^.+\\.ts$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.json' }],
   },
   moduleNameMapper: {
+    // `rpc-websockets` (a transitive dependency of `@solana/web3.js`, itself pulled in by
+    // `@coral-xyz/anchor`) bundles its own nested `uuid@14`, which ships ESM-only and can't be
+    // `require()`-d under Jest's CJS runtime (plain Node 22's `require(esm)` support handles this
+    // fine outside Jest). Force every `require('uuid')` — including the one inside
+    // `rpc-websockets` — to resolve to the hoisted, CJS-compatible `uuid@11` instead.
+    '^uuid$': '<rootDir>/node_modules/uuid',
     '^@app/common$': '<rootDir>/libs/common/src',
     '^@app/common/(.*)$': '<rootDir>/libs/common/src/$1',
     '^@app/solana-parsers$': '<rootDir>/libs/solana-parsers/src',
